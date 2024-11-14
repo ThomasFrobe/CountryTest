@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Language Filter WebApp</title>
+</head>
+<body>
+    <h1>Filter Countries by Language</h1>
+    <form id="languageForm">
+        <label for="languages">Enter languages (comma separated):</label>
+        <input type="text" id="languages" name="languages" required>
+        <button type="submit">Submit</button>
+    </form>
+    <h2>Results</h2>
+    <pre id="results"></pre>
+
+    <script>
+        document.getElementById('languageForm').onsubmit = function(event) {
+            event.preventDefault();
+
+            const languages = document.getElementById('languages').value;
+            const current_time_iso = new Date().toISOString().slice(0, 19) + 'Z';
+
+            const data = {
+                query: `
+                {
+                    countries {
+                        name
+                        continent {
+                            name
+                        }
+                        capital
+                        languages {
+                            code
+                            name
+                        }
+                    }
+                }
+                `,
+                //timestamp: current_time_iso
+            };
+
+            fetch('https://countries.trevorblades.com/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Log received data for debugging
+                if (data && data.data && data.data.countries) {
+                    const filteredCountries = filterCountries(data.data.countries, languages.split(',').map(l => l.trim().toLowerCase()));
+                    document.getElementById('results').textContent = JSON.stringify(filteredCountries, null, 2);
+                } else {
+                    document.getElementById('results').textContent = 'No countries found or error in fetching data.';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('results').textContent = 'Error fetching data.';
+            });
+        };
+
+        function filterCountries(countries, filters) {
+            return countries.filter(country => {
+                return country.languages.some(language => {
+                    return filters.includes(language.code.toLowerCase()) || filters.includes(language.name.toLowerCase());
+                });
+            });
+        }
+    </script>
+</body>
+</html>
