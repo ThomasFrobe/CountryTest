@@ -1,0 +1,37 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Language Filter WebApp</title>
+</head>
+<body>
+    <h1>Filter Countries by Language</h1>
+    <form id="languageForm">
+        <label for="languages">Enter languages (comma separated):</label>
+        <input type="text" id="languages" name="languages" required>
+        <button type="submit">Submit</button>
+    </form>
+    <h2>Results</h2>
+    <pre id="results"></pre>
+
+    <script>
+        document.getElementById('languageForm').onsubmit = function(event) {
+            event.preventDefault();
+            
+            var languages = document.getElementById('languages').value;
+            
+            fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'languages=' + encodeURIComponent(languages)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('results').textContent = "JSON:\n" + JSON.stringify(data.json, null, 2) + "\n\nXML:\n" + data.xml;
+            });
+        };
+    </script>
+</body>
+</html>
