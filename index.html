@@ -83,9 +83,9 @@
                         countries.forEach(country => {
                             if (country.languages.some(lang => lang.code.toLowerCase() === language.trim().toLowerCase() || lang.name.toLowerCase() === language.trim().toLowerCase())) {
                                 xml += ' <country>\n';
-                                xml += ` <name>${country.name}</name>\n`;
-                                xml += ` <continent>${country.continent.name}</continent>\n`;
-                                xml += ` <capital>${country.capital}</capital>\n`;
+                                xml += `   <name>${country.name}</name>\n`;
+                                xml += `   <continent>${country.continent.name}</continent>\n`;
+                                xml += `   <capital>${country.capital}</capital>\n`;
                                 xml += ' </country>\n';
                             }
                         });
