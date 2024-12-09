@@ -56,7 +56,8 @@
                 console.log('Received data:', data); // Log received data for debugging
                 if (data && data.data && data.data.countries) {
                     const filteredCountries = filterCountries(data.data.countries, languages.split(',').map(l => l.trim().toLowerCase()));
-                    document.getElementById('results').textContent = JSON.stringify(filteredCountries, null, 2);
+                    const xmlResults = formatXML(filteredCountries, languages.split(','), current_time_iso);
+                    document.getElementById('results').textContent = xmlResults;
                 } else {
                     document.getElementById('results').textContent = 'No countries found or error in fetching data.';
                 }
@@ -73,6 +74,25 @@
                     return filters.includes(language.code.toLowerCase()) || filters.includes(language.name.toLowerCase());
                 });
             });
+        }
+
+        function formatXML(countries, languages, timestamp) {
+            let xml = '<queries>\n';
+                languages.forEach(language => {
+                    xml += ` <query language="${language.trim()}" queryTime="${timestamp}">\n`;
+                        countries.forEach(country => {
+                            if (country.languages.some(lang => lang.code.toLowerCase() === language.trim().toLowerCase() || lang.name.toLowerCase() === language.trim().toLowerCase())) {
+                                xml += ' <country>\n';
+                                xml += ` <name>${country.name}</name>\n`;
+                                xml += ` <continent>${country.continent.name}</continent>\n`;
+                                xml += ` <capital>${country.capital}</capital>\n`;
+                                xml += ' </country>\n';
+                            }
+                        });
+                        xml += ' </query>\n';
+                    });
+                    xml += '</queries>';
+                    return xml;
         }
     </script>
 </body>
